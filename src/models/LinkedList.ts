@@ -14,6 +14,7 @@ export type AnimationStep = {
     values: number[];
     activeIndexes: number[];
     type: AnimationType;
+    codeLine?: number;
 }
 
 export class LinkedList {
@@ -140,7 +141,8 @@ export class LinkedList {
                 steps.push({
                     values: listCopy.toArray(),
                     activeIndexes: [i, j],
-                    type: "compare"
+                    type: "compare",
+                    codeLine: 2
                 });
                 if (current.value > index.value) {
                     const temp = current.value;
@@ -150,6 +152,7 @@ export class LinkedList {
                     steps.push({
                         values: listCopy.toArray(),
                         activeIndexes: [i, j],
+                        codeLine: 3,
                         type: "swap"
                     });
                 }
@@ -159,6 +162,12 @@ export class LinkedList {
             current = current.next;
             i++;
         }
+        steps.push({
+            values: listCopy.toArray(),
+            activeIndexes: [],
+            type: "done",
+            codeLine: undefined
+        });
         return steps;
     }
 

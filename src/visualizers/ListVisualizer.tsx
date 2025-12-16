@@ -1,21 +1,20 @@
-//Add animationType from types/AnimationType.ts
+import type { AnimationStep } from "../models/LinkedList";
+import { Box } from "@mui/material";
 
-import type { AnimationType } from "../types/AnimationType";
+export function ListVisualizer({ values, activeIndexes, type} : AnimationStep) {
 
+    const chunked: number[][] = [];
 
-type Props = {
-    values: number[];
-    highlightedIndexes: number[];
-    animationType?: AnimationType;
-};
+    const max_chunk_size = 10;
 
-
-export function ListVisualizer({ values, highlightedIndexes, animationType } : Props) {
+    for (let i = 0; i < values.length; i += max_chunk_size) {
+        chunked.push(values.slice(i, i + max_chunk_size));
+    }
 
     const getColor = (index: number) => {
-        if (!highlightedIndexes.includes(index)) return "#34383bff";
+        if (!activeIndexes.includes(index)) return "#34383bff";
 
-        switch (animationType) {
+        switch (type) {
             case "compare":
                 return "#ffd54f";
             case "swap":
@@ -26,36 +25,62 @@ export function ListVisualizer({ values, highlightedIndexes, animationType } : P
                 return "#42a5f5";
             case "remove":
                 return "#ef5350";
+            case "done":
+                return "#26a69a";
             default:
                 return "#34383bff";
         }
     }
 
     return (
-        <div style={{ display: "flex", alignItems: "center", marginTop: "20px"}}>
-            {values.map((value, index) => (
-                <div key={index} style={{ display: "flex", alignItems: "center"}}>
-
-                    <div
-                        style={{
-                            padding: "12px 18px",
-                            border: "2px solid black",
-                            borderRadius: "6px",
-                            backgroundColor: getColor(index),
-                            transition: "all 0.4s ease",
-                            fontWeight: "bold",
-                            transform: highlightedIndexes.includes(index) ? "scale(1.1)" : "scale(1)",
-                            color: "white"
-                        }}
+        <Box display="flex" flexDirection="column" gap={2} mt={2}>
+            {chunked.map((row, rowIndex) => {
+                const isReverse = rowIndex % 2 === 1;
+                return (
+                    <Box
+                        key={rowIndex}
+                        display="flex"
+                        justifyContent={isReverse ? "flex-end" : "flex-start"}
+                        alignItems="center"
+                        gap={1}
+                        flexWrap="wrap"
                     >
-                        {value}
-                    </div>
+                        {row.map((value, index) => {
+                            // Calculamos el índice global real de este valor
+                            const globalIndex = rowIndex * max_chunk_size + index;
 
-                    {index < values.length -1 && (
-                        <span style={{ margin: "0 10px", fontSize: "20px"}}>→</span>
-                    )}
-                </div>
-            ))}
-        </div>
+                            return (
+                                <Box key={index} display="flex" alignItems="center">
+                                    <Box
+                                        sx={{
+                                            px: 2,
+                                            py: 1,
+                                            border: "2px solid black",
+                                            borderRadius: "6px",
+                                            backgroundColor: getColor(globalIndex),
+                                            transition: "all 0.4s ease",
+                                            fontWeight: "bold",
+                                            transform: activeIndexes.includes(globalIndex)
+                                                ? "scale(1.1)"
+                                                : "scale(1)",
+                                            color: "white",
+                                            minWidth: 40,
+                                            textAlign: "center",
+                                        }}
+                                    >
+                                        {value}
+                                    </Box>
+                                    {index < row.length - 1 && (
+                                        <Box mx={0.5}>
+                                            {isReverse ? "←" : "→"}
+                                        </Box>
+                                    )}
+                                </Box>
+                            );
+                        })}
+                    </Box>
+                );
+            })}
+        </Box>
     );
 }
