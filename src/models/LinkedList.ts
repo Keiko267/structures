@@ -1,3 +1,4 @@
+import type { AnimationType } from "../types/AnimationType";
 
 class Node {
     value: number;
@@ -9,6 +10,11 @@ class Node {
     }
 }
 
+export type AnimationStep = {
+    values: number[];
+    activeIndexes: number[];
+    type: AnimationType;
+}
 
 export class LinkedList {
 
@@ -35,6 +41,16 @@ export class LinkedList {
             }
         }
         this.length++;
+    }
+
+    clone(): LinkedList {
+        const newList = new LinkedList();
+        let current = this.head;
+        while (current) {
+            newList.insert(current.value);
+            current = current.next;
+        }
+        return newList;
     }
 
     removeFirst (): void {
@@ -64,17 +80,20 @@ export class LinkedList {
         this.length--;
     }
 
-    search(value: number): Node | boolean {
+    search(value: number): number {
         let current = this.head;
+        let index = 0;
         while (current) {
             if (current.value === value) {
-                return current;
+                return index;
             }
+            current = current.next;
+            index++;
         }
-        return false;
+        return -1;
     }
 
-    sort(): void {
+    /* private sort(): void {
         let temp: number;
         if (!this.head || !this.head.next) {
             return;
@@ -94,5 +113,75 @@ export class LinkedList {
                 current = current.next;
             }
         }
+    } */
+
+    private toArray(): number[] {
+        const array: number[] = [];
+        let current = this.head;
+        while (current) {
+            array.push(current.value);
+            current = current.next;
+        }
+        return array;
     }
+
+    getSortSteps(): AnimationStep[] {
+        const steps: AnimationStep[] = [];
+        const listCopy = this.clone();
+
+        let i = 0;
+        let current = listCopy.head;
+        if (!current) return steps;
+
+        while (current) {
+            let j = i + 1;
+            let index = current.next;
+            while (index) {
+                steps.push({
+                    values: listCopy.toArray(),
+                    activeIndexes: [i, j],
+                    type: "compare"
+                });
+                if (current.value > index.value) {
+                    const temp = current.value;
+                    current.value = index.value;
+                    index.value = temp;
+
+                    steps.push({
+                        values: listCopy.toArray(),
+                        activeIndexes: [i, j],
+                        type: "swap"
+                    });
+                }
+                index = index.next;
+                j++;
+            }
+            current = current.next;
+            i++;
+        }
+        return steps;
+    }
+
+    getSearchSteps(value: number) : AnimationStep[] {
+        const steps: AnimationStep[] = [];
+        let index = 0;
+        let current = this.head;
+
+        while (current) {
+            steps.push({
+                values: this.toArray(),
+                activeIndexes: [index],
+                type: current.value === value ? "found" : "compare"
+            });
+
+            if (current.value === value) {
+                return steps;
+            }
+
+            current = current.next;
+            index++;
+        }
+        return steps;
+    }
+
 }
