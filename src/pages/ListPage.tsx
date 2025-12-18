@@ -1,9 +1,9 @@
 import {useState} from "react";
 import {LinkedList} from "../models/LinkedList";
 import {ListVisualizer} from "../visualizers/ListVisualizer";
-import {Button ,Stack, TextField, Typography, Paper, Slider, IconButton, Collapse, Box } from "@mui/material";
+import {Button ,Stack, TextField, Typography, Paper, Slider, /* IconButton, Collapse, */ Box } from "@mui/material";
 //import { PseudoCodeViewer } from "../components/PseudoCodeViewer";
-import type { AnimationType } from "../types/AnimationType";
+import type { ListAnimationStep, AnimationType } from "../types/AnimationStep";
 //import ChevronRight from "@mui/icons-material/ChevronRight";
 //import { bubbleSortPseudoCode } from "../constants/pseudocode";
 
@@ -23,9 +23,20 @@ export function ListPage() {
 
     const [speed, setSpeed] = useState<number>(500);
 
-    const max_elements = 10;
+    const max_elements = 12;
     
-    
+    const runAnimation = async (steps: ListAnimationStep[]) => {
+        for (const step of steps) {
+            setHighlightedIndex(step.activeIndexes);
+            setAnimationType(step.type);
+            await new Promise(resolve => setTimeout(resolve, speed));
+        }
+    }
+
+    const stopAnimation = () => {
+        setHighlightedIndex([]);
+        setAnimationType(null);
+    }
 
     const add = () => {
         const newValue = Math.floor(Math.random() * 100);
@@ -54,21 +65,15 @@ export function ListPage() {
 
         const steps = list.getSearchSteps(value);
 
-        for (const step of steps) {
-            setHighlightedIndex(step.activeIndexes);
-            setAnimationType(step.type);
-
-            await new Promise(resolve => setTimeout(resolve, speed));
-        }
+        await runAnimation(steps);
 
         if (steps.at(-1)?.type !== "found") {
             alert("Value not found in the list");
-            setHighlightedIndex([]);
-            setAnimationType(null);
+            stopAnimation();
+            return;
         }
         await new Promise(resolve => setTimeout(resolve, speed));
-        setHighlightedIndex([]);
-        setAnimationType(null);
+        stopAnimation();
     }
 
     const sortAnimated = async () => {
@@ -94,7 +99,7 @@ export function ListPage() {
 
             if (step.type === "done") {
                 console.log("done");
-                setHighlightedIndex(step.values.map((_, index) => index));
+                setHighlightedIndex(step.values.map((_: any, index: any) => index));
                 setAnimationType("done");
                 //setActiveCodeLine(null);
                 await new Promise(resolve => setTimeout(resolve, speed));
@@ -118,7 +123,7 @@ export function ListPage() {
 
     return (
         <Box>
-            <Paper elevation={3} sx={{p: 3, maxWidth: 900, margin: "0 auto", borderRadius: 4, mt: 4}}>
+            <Paper elevation={3} sx={{p: 3, maxWidth: 1100, margin: "0 auto", borderRadius: 4, mt: 4}}>
                 <Typography variant="h4" gutterBottom>
                     Linked List Visualizer
                 </Typography>

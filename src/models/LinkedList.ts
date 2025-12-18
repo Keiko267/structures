@@ -1,5 +1,4 @@
-import type { AnimationType } from "../types/AnimationType";
-
+import type { ListAnimationStep } from "../types/AnimationStep";
 class Node {
     value: number;
     next: Node | null;
@@ -8,13 +7,6 @@ class Node {
         this.value = value;
         this.next = null;
     }
-}
-
-export type AnimationStep = {
-    values: number[];
-    activeIndexes: number[];
-    type: AnimationType;
-    codeLine?: number;
 }
 
 export class LinkedList {
@@ -126,8 +118,8 @@ export class LinkedList {
         return array;
     }
 
-    getSortSteps(): AnimationStep[] {
-        const steps: AnimationStep[] = [];
+    getSortSteps(): ListAnimationStep[] {
+        const steps: ListAnimationStep[] = [];
         const listCopy = this.clone();
 
         let i = 0;
@@ -171,14 +163,15 @@ export class LinkedList {
         return steps;
     }
 
-    getSearchSteps(value: number) : AnimationStep[] {
-        const steps: AnimationStep[] = [];
+    getSearchSteps(value: number) : ListAnimationStep[] {
+        const steps: ListAnimationStep[] = [];
+        const listCopy = this.clone();
         let index = 0;
-        let current = this.head;
+        let current = listCopy.head;
 
         while (current) {
             steps.push({
-                values: this.toArray(),
+                values: listCopy.toArray(),
                 activeIndexes: [index],
                 type: current.value === value ? "found" : "compare"
             });

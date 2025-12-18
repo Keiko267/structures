@@ -1,1 +1,0 @@
-export type AnimationType = "compare" | "found" | "insert" | "remove" | "swap" | "done" | null;
