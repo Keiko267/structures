@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { BTree } from "../models/BTree";
-import { TreeVisualizer } from "../visualizers/TreeVisalizer";
+import { TreeVisualizer } from "../visualizers/TreeVisualizer";
 import { Button, Stack, TextField, Typography, Paper, Slider } from "@mui/material";
 import type { TreeAnimationStep } from "../types/AnimationStep";
+import type { TreeNodeSnapshot } from "../types/TreeNodeSnapshot";
 
 export function TreePage() {
-    const [tree, setTree] = useState<BTree>(new BTree());
+    const [tree, setTree] = useState<BTree>(new BTree(true));
 
     const [currentStep, setCurrentStep] = useState<TreeAnimationStep | null>(null);
+    const [currentTreeSnapchot, setCurrentTreeSnapchot] = useState<TreeNodeSnapshot | null>(tree.toSnapchot());
 
     const [speed, setSpeed] = useState<number>(500);
     const [inputValue, setInputValue] = useState<string>("");
@@ -18,9 +20,10 @@ export function TreePage() {
     const runAnimation = async (steps: TreeAnimationStep[]) => {
         for (const step of steps) {
             setCurrentStep(step);
+            setCurrentTreeSnapchot(step.tree);
             await new Promise(resolve => setTimeout(resolve, speed));
         }
-        setCurrentStep(null);
+        
     }
 
     const insertAnimated = async ()  => {
@@ -37,6 +40,7 @@ export function TreePage() {
         const newTree = tree.clone();
         newTree.insert(value);
         setTree(newTree);
+        setCurrentTreeSnapchot(newTree.toSnapchot());
 
         setInputValue("");
 
@@ -48,6 +52,13 @@ export function TreePage() {
         setSearchValue("");
         const steps = tree.getSearchSteps(value);
         await runAnimation(steps);
+
+        //Reset highlighted nodes setting activePath to empty
+        setCurrentStep({
+            tree: currentStep?.tree ?? null,
+            activePath: [],
+            type: null
+        });
         
     }
 
@@ -99,9 +110,9 @@ export function TreePage() {
             />
             {currentStep && (
                 <TreeVisualizer
-                    tree={currentStep.tree}
-                    activePath={currentStep.activePath}
-                    type={currentStep.type}
+                    tree={currentTreeSnapchot}
+                    activePath={currentStep?.activePath ?? []}
+                    type={currentStep?.type ?? null}
                 />
             )}
         </Paper>

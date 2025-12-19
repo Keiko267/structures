@@ -12,9 +12,9 @@ type Props = {
 
 export function TreeVisualizer({tree, activePath, type} : Props) {
     const renderNode = (node: TreeNodeSnapshot) => {
-        if (!node) return null;
+        if (!node) return <Box width={80}/>;
 
-        const isActive = activePath.includes(node.value);
+        const isActive = activePath.includes(node.id);
 
         return (
             <Box display={"flex"} flexDirection={"column"} alignItems={"center"}>
@@ -23,7 +23,7 @@ export function TreeVisualizer({tree, activePath, type} : Props) {
                         width: 40,
                         height: 40,
                         borderRadius: "50%",
-                        backgroundColor: getColor(node.value, activePath, type),
+                        backgroundColor: getColor(node.id, activePath, type),
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -36,7 +36,7 @@ export function TreeVisualizer({tree, activePath, type} : Props) {
                     {node.value}
                 </Box>
 
-                <Box display={"flex"} gap={4} mt={2}>
+                <Box display={"flex"} justifyContent={"space-between"} gap={4} mt={2}>
                     {node.left &&
                         renderNode(node.left)
                     }
