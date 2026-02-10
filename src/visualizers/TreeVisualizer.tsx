@@ -11,13 +11,14 @@ type Props = {
 
 
 export function TreeVisualizer({tree, activePath, type} : Props) {
-    const renderNode = (node: TreeNodeSnapshot) => {
-        if (!node) return <Box width={80}/>;
+    const renderNode = (node: TreeNodeSnapshot | null) => { // We accept null to reserve the structure of the tree even when some nodes are missing
+        if (!node) return <Box width={120}/>;
 
         const isActive = activePath.includes(node.id);
 
         return (
-            <Box display={"flex"} flexDirection={"column"} alignItems={"center"}>
+            <Box display={"flex"} flexDirection={"column"} alignItems={"center"} minWidth={240}>
+                {/* Node circle */}
                 <Box
                     sx={{
                         width: 40,
@@ -35,14 +36,17 @@ export function TreeVisualizer({tree, activePath, type} : Props) {
                 >
                     {node.value}
                 </Box>
-
-                <Box display={"flex"} justifyContent={"space-between"} gap={4} mt={2}>
-                    {node.left &&
-                        renderNode(node.left)
-                    }
-                    {node.right &&
-                        renderNode(node.right)
-                    }
+                {/* Children */}
+                <Box display={"flex"} justifyContent={"space-between"} width={"100%"} mt={2}>
+                    <Box width={"50%"} display={"flex"} justifyContent={"center"}>
+                        
+                        {renderNode(node.left)}
+                        
+                    </Box>
+                    
+                    <Box width={"50%"} display={"flex"} justifyContent={"center"}>
+                        {renderNode(node.right)}
+                    </Box>
                 </Box>
             </Box>
         );

@@ -5,6 +5,8 @@ function App() {
   return (
     <div className="App">
       <ListPage />
+      {/* Give a little bit of space between the two pages */}
+      <div style={{ height: '20px' }} />
       <TreePage />
     </div>
   )
